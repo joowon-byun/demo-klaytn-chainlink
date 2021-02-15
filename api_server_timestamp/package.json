@@ -1,0 +1,15 @@
+{
+  "name": "api_server_timestamp",
+  "version": "1.0.0",
+  "description": "api server that fetch oracle data (current time)",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@chainlink/external-adapter": "^0.2.6",
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "request": "curl --location --request GET 'http://localhost:5000'"
+  }
+}

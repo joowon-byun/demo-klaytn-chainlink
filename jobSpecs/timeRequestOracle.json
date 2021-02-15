@@ -1,0 +1,17 @@
+{
+  "initiators": [
+    {
+      "type": "external",
+      "params": {
+        "name": "klaytn",
+        "body": {
+          "endpoint": "klaytn-baobab",
+          "addresses": ["0xE4ffd8d653c54780dbD1708a268488130ebABfdA"]
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {"type": "klaytnSendTxOracle"}
+  ]
+}
