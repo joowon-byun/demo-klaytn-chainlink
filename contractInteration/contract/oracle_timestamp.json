@@ -2,6 +2,11 @@
   {
    "inputs": [
     {
+     "internalType": "bytes32",
+     "name": "_specId",
+     "type": "bytes32"
+    },
+    {
      "internalType": "address",
      "name": "_oracleAddress",
      "type": "address"

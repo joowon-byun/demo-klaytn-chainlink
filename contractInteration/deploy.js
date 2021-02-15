@@ -13,6 +13,11 @@ async function main() {
   let contract = new caver.contract(JSON.parse(fs.readFileSync("./contract/" + FILE_NAME + ".json")))
   contract.deploy({
     data: fs.readFileSync("./contract/" + FILE_NAME + ".bin"),
+    arguments: [
+      caver.utils.asciiToHex("8490a56c519149549f4625d742f48b1c"), // specID
+      "0xE4ffd8d653c54780dbD1708a268488130ebABfdA",               // Contract Address of Oracle
+      "0x11c6d510B5009a45EA9832828DE00f8cCe23c19E"                // Contract Address of LinkToken
+    ]
   }).send({
     from: keyring.toAccount()._address,
     gas: 1500000,

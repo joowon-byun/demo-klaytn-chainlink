@@ -8,8 +8,8 @@ contract ConsumerTimestamp is ChainlinkClient {
   address internal oracleAddress; // Oracle Address that ChainLink listens to
   uint256[] public times;
 
-  constructor (address _oracleAddress, address _link) public {
-    specId =  "8490a56c519149549f4625d742f48b1c";
+  constructor (bytes32 _specId, address _oracleAddress, address _link) public {
+    specId =  _specId;
     oracleAddress = _oracleAddress;
     setChainlinkOracle(_oracleAddress);
     setChainlinkToken(_link);
@@ -18,13 +18,12 @@ contract ConsumerTimestamp is ChainlinkClient {
   // requestTime requests time from off-chain
   function requestTime() public {
     Chainlink.Request memory req = buildChainlinkRequest(specId, address(this), this.setTime.selector);
-    req.add("httpgetwithunrestrictednetworkaccess", "http://localhost:5000");
+    // req.add("httpgetwithunrestrictednetworkaccess", "http://localhost:5000");
     sendChainlinkRequestTo(oracleAddress, req, 10);
   }
 
   // setTime is called from off-chain
   function setTime(bytes32 _requestId, uint256 t) public recordChainlinkFulfillment(_requestId) {
-    emit RequestFulfilled(_requestId, t);
     times.push(t);
   }
 

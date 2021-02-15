@@ -1,4 +1,6 @@
 This repo is modified version of https://github.com/Conflux-Network-Global/demo-cfx-chainlink.
+If you are having trouble when following the demo, check [ISSUES.md](./ISSUES.md). You can ask questions in [Klaytn Forum](https://forum.klaytn.com/). If you are interested in Chainlink, checkout the [Chainlink documentation](https://docs.chain.link/docs).
+
 # Klaytn Network + Chainlink: Connection Demo
 
 Demonstrating how to connect Klaytn Network and Chainlink together, and thus bringing the world of oracles to Klaytn Network. This is a simple demonstration of how to use an [external initiator](https://github.com/smartcontractkit/chainlink/wiki/External-Initiators) (EI) and [external adapter](https://github.com/smartcontractkit/chainlink/wiki/External-Adapters) (EA) that allows for an external server to interact with a simple on-chain smart contract. The smart contract inherits [ChainLinkClient](https://github.com/smartcontractkit/chainlink/blob/v0.9.10/evm-contracts/src/v0.6/ChainlinkClient.sol) which also utilizes [Oracle](https://github.com/smartcontractkit/chainlink/blob/v0.9.10/evm-contracts/src/v0.6/Oracle.sol) and [LinkToken](https://github.com/smartcontractkit/LinkToken/blob/master/contracts/v0.6/LinkToken.sol).
@@ -20,6 +22,9 @@ Demonstration diagrams for the various connections and the interaction sequences
 Generalized setup steps for the configuration of Chainlink components - more details are provided for connecting the various pieces together. Please see [Chainlink](https://docs.chain.link/docs) documentation if more details on configuration and setup are needed.
 
 Before configuring the Chainlink components, there needs to be an oracle contract on the Klaytn Network that emits events. This is needed for the EI to trigger job runs on the Chainlink node. See the [contractInteraction](./contractInteraction) folder for code to interact with the Klaytn Network.
+
+### Starting Klaytn Node
+A Klaytn endpoint node is needed for this demo. You can run one with [this tutorial](https://docs.klaytn.com/node/endpoint-node).
 
 ### Deploying contracts
 For this project, you need to know LinkToken and Oracle contract address. You can deploy them by the following steps.
@@ -71,7 +76,7 @@ PRIVATE_KEY= truffle deploy --network baobab -f 02 --to 02    # deploy oracle co
 ```
 
 ### PostgreSQL
-Before running a Chainlink node, you should install postgreSQL.
+Before running a Chainlink node, you should install postgreSQL. There should be two DBs created; one for a chainlink node and another for an external initiator.
 ```
 brew update
 brew install postgres
@@ -85,7 +90,7 @@ createdb chainlink_ei   # db for an external initiator
 
 ### Running a Chainlink Node
 
-These steps involves running a Chainlink node in a local environment. (To run a chainlink node from a docker container, checkout [developer documentation](https://docs.chain.link/docs/running-a-chainlink-node).)
+These steps involves running a Chainlink node in a local environment. (To run a chainlink node from a docker container, checkout [Chainlink developer documentation](https://docs.chain.link/docs/running-a-chainlink-node).)
 ```
 git clone git@github.com:smartcontractkit/chainlink.git
 cd chainlink
@@ -107,7 +112,7 @@ ETH_DISABLED=true
 FEATURE_EXTERNAL_INITIATORS=true
 CHAINLINK_DEV=true
 ```
-To run a chainlink node, go 1.14 and node 12.18 should be installed. Checkout `README.md` in the chainlink repo for detail.
+To run a chainlink node, go 1.14 and node 12.18 should be installed. Checkout [`README.md`](https://github.com/smartcontractkit/chainlink/blob/v0.9.10/README.md) in the chainlink repo for detail.
 ```
 nvm use 12.18
 make install
@@ -118,7 +123,7 @@ During setup, a node password and a username/password is required for setup. The
 
 ### Setting Up an External Initiator
 
-External initiators observe a blockchain node endpoint and will trigger runs on the Chainlink node.  
+External initiators observe a blockchain node endpoint and will trigger runs on the Chainlink node.
 _Note: Prerequisite for Go to be installed. See [here](https://golang.org/doc/install) for instructions._
 
 Clone and build the [external initiator repository](https://github.com/winnie-byun/external-initiator/tree/klaytn) (forked from main repository to adapt for Conflux Network)
@@ -147,8 +152,8 @@ The defualt websockect addresses for Klaytn are as below :
 _Note: Public EN has a timeout and limited number of connections. For this reason, there could be continuous errors, but chainlink continuously tries to reconnect to the client. There would be no problem for testing. (If you are running a klaytn client in a local environment, checkout `wsreaddeadline`, `wswritedeadline` and `wsmaxconnections` flags for websocket connection.)_
 | Network        | Local run                    | Public EN                              |
 | -------------- | ---------------------------- | -------------------------------------- |
-| Baobab         | ws://localhost:8546/         | wss://api.baobab.klaytn.net:8652       |
-| Cypress        | ws://localhost:8546/         | wss://api.cypress.klaytn.net:8652      |
+| Baobab         | ws://localhost:8552/         | wss://api.baobab.klaytn.net:8652       |
+| Cypress        | ws://localhost:8552/         | wss://api.cypress.klaytn.net:8652      |
 
 The external initiator uses websocket for connection. However, if you want to use rpc, refer the following :
 | Network        | Local run                    | Public EN                              |
@@ -179,7 +184,7 @@ In order to connect the external adapter, one bridge is used. Go to `http://loca
 
 | Bridge Name    | Endpoint                     | Functionality                          |
 | -------------- | ---------------------------- | -------------------------------------- |
-| `klaytnSendTxOracle`  | http://172.17.0.1:5002 | Sending transaction to Klaytn Network |
+| `klaytnSendTxOracle`  | http://127.0.0.1:5002 | Sending transaction to Klaytn Network |
 
 ### Running an API server
 
@@ -217,7 +222,7 @@ The job spec is for connecting the external initiator and can be found [here](./
 ```
 
 ### Deploying and Calling Consumer Contract
-Now you are ready to deploy your consumer code. The consumer code can be found at `./contractInteraction/contract/oracle_timestamp.sol`.
+Now you are ready to deploy your consumer code. The consumer code can be found at `./contractInteraction/contract/oracle_timestamp.sol`. You need to set Job Spec ID, LinkToken Contract addres, Oracle Contract address as arguments in the file.
 ```
 cd ./contractInteraction
 yarn
@@ -231,7 +236,3 @@ PRIVATE_KEY= node LinkToken-balanceOf     # check the balance in your contract
 PRIVATE_KEY= FILE_NAME=oracle_timestamp node emitEvent    # request timestamp
 PRIVATE_KEY= FILE_NAME=oracle_timestamp node getInfo      # check if the data is stored
 ```
-
-### Notes
-
-- This is a demonstration integration, there are many improvements that can be made from a increased security, code optimization, and testing perspectives
